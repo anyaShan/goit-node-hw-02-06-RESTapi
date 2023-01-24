@@ -1,3 +1,4 @@
+const Joi = require("joi");
 const {
   listContacts,
   getContactById,
@@ -19,7 +20,8 @@ router.get("/", async (req, res, next) => {
 });
 
 router.get("/:id", async (req, res, next) => {
-  const contact = await getContactById(req.params.id);
+  const { id } = req.params;
+  const contact = await getContactById(id);
 
   if (!contact) {
     return res.status(404).json({
@@ -36,7 +38,8 @@ router.get("/:id", async (req, res, next) => {
 });
 
 router.delete("/:id", async (req, res, next) => {
-  const contact = await removeContact(req.params.id);
+  const { id } = req.params;
+  const contact = await removeContact(id);
   console.log(contact);
   if (!contact) {
     return res.status(404).json({
@@ -56,7 +59,23 @@ router.delete("/:id", async (req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(30).required(),
+    phone: Joi.string().required(),
+    email: Joi.string().email().required(),
+  });
+
+  const validationResult = schema.validate(req.body);
+  if (validationResult.error) {
+    return res.status(400).json({
+      status: "error",
+      code: 400,
+      message: "missing required name field",
+    });
+  }
+
   const contact = await addContact(req.body);
+
   res.status(201).json({
     status: "success",
     code: 201,
@@ -67,17 +86,24 @@ router.post("/", async (req, res, next) => {
 });
 
 router.put("/:id", async (req, res, next) => {
-  const { id } = req.params;
+  const schema = Joi.object({
+    name: Joi.string().min(3).max(30).required(),
+    phone: Joi.string().required(),
+    email: Joi.string().email().required(),
+  });
 
-  const contact = await updateContact(id, req.body);
-
-  if (!req.body) {
+  const validationResult = schema.validate(req.body);
+  if (validationResult.error) {
     return res.status(400).json({
       status: "error",
       code: 400,
       message: "missing fields",
     });
   }
+
+  const { id } = req.params;
+
+  const contact = await updateContact(id, req.body);
 
   res.status(200).json({
     status: "success",
