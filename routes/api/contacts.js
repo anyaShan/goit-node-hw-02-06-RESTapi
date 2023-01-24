@@ -4,7 +4,7 @@ const {
   getContactById,
   removeContact,
   addContact,
-  // updateContact,
+  updateContact,
 } = require("../../models/contacts");
 const express = require("express");
 
@@ -19,12 +19,28 @@ router.get("/", async (req, res, next) => {
   });
 });
 
-router.get("/:contactId", async (req, res, next) => {
-  const contact = await getContactById(req.params.contactId);
+router.get("/:id", async (req, res, next) => {
+  const contact = await getContactById(req.params.id);
   res.json({
     status: "success",
     code: 200,
     contact,
+  });
+});
+
+router.delete("/:id", async (req, res, next) => {
+  const contact = await removeContact(req.params.id);
+  console.log(contact);
+  if (!contact) {
+    throw new NotFound(`Contacts whit id=${req.params.id} not found`);
+  }
+  res.json({
+    status: "success",
+    code: 200,
+    message: "product deleted",
+    data: {
+      contact,
+    },
   });
 });
 
@@ -39,34 +55,18 @@ router.post("/", async (req, res, next) => {
   });
 });
 
-router.delete("/:contactId", async (req, res, next) => {
-  const contact = await removeContact(req.params.contactId);
-  console.log(contact);
-  if (!contact) {
-    throw new NotFound(`Contacts whit id=${req.params.contactId} not found`);
-  }
-  res.json({
+router.put("/:id", async (req, res, next) => {
+  const { id } = req.params;
+
+  const contact = await updateContact(id, req.body);
+
+  res.status(200).json({
     status: "success",
     code: 200,
-    message: "product deleted",
     data: {
       contact,
     },
   });
 });
-
-// router.put("/:contactId", async (req, res, next) => {
-//   const { contactId } = req.params;
-
-//   const contact = await updateContact(contactId, req.body);
-
-//   res.status(200).json({
-//     status: "success",
-//     code: 200,
-//     data: {
-//       contact,
-//     },
-//   });
-// });
 
 module.exports = router;
