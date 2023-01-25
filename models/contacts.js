@@ -46,6 +46,8 @@ const updateContact = async (contactId, body) => {
 
   const index = contacts.findIndex((item) => item.id === contactId);
   if (index !== -1) {
+    // альтернатива:
+    // contacts[index] = { contactId, ...body };
     contacts[index].phone = phone;
     contacts[index].name = name;
     contacts[index].email = email;
