@@ -1,109 +1,99 @@
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require("../models/contacts");
+const { controllerWrapper, HttpError } = require("../helpers/index");
+const { Contact } = require("../models/contacts");
 
-const getContacts = async (req, res, next) => {
-  try {
-    const contacts = await listContacts();
-    res.status(200).json({
-      status: "success",
-      code: 200,
-      contacts,
-    });
-  } catch (error) {
-    next(error);
-  }
+// const {
+//   listContacts,
+//   getContactById,
+//   removeContact,
+//   addContact,
+//   updateContact,
+// } = require("../models/contacts");
+
+const getContacts = async (req, res) => {
+  const contacts = await Contact.find();
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    contacts,
+  });
 };
 
-const getOneContact = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const contact = await getContactById(id);
+const getOneContact = async (req, res) => {
+  const { id } = req.params;
+  const contact = await Contact.findById(id);
 
-    if (!contact) {
-      return res.status(404).json({
-        status: "error",
-        code: 404,
-        message: "Not found",
-      });
-    }
-    res.status(200).json({
-      status: "success",
-      code: 200,
+  if (!contact) {
+    throw HttpError(404);
+  }
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    contact,
+  });
+};
+
+const deleteContact = async (req, res) => {
+  const { id } = req.params;
+  const contact = await Contact.findByIdAndRemove(id);
+
+  if (!contact) {
+    throw HttpError(404);
+  }
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    message: "contact deleted",
+    data: {
       contact,
-    });
-  } catch (error) {
-    next(error);
-  }
+    },
+  });
 };
 
-const deleteContact = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const contact = await removeContact(id);
-    console.log(contact);
-    if (!contact) {
-      return res.status(404).json({
-        status: "error",
-        code: 404,
-        message: "Not found",
-      });
-    }
-    res.status(200).json({
-      status: "success",
-      code: 200,
-      message: "contact deleted",
-      data: {
-        contact,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
+const postContact = async (req, res) => {
+  const contact = await Contact.create(req.body);
+  res.status(201).json({
+    status: "success",
+    code: 201,
+    data: {
+      contact,
+    },
+  });
 };
 
-const postContact = async (req, res, next) => {
-  try {
-    const contact = await addContact(req.body);
+const putContact = async (req, res) => {
+  const { id } = req.params;
 
-    res.status(201).json({
-      status: "success",
-      code: 201,
-      data: {
-        contact,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
+  const contact = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    data: {
+      contact,
+    },
+  });
 };
 
-const putContact = async (req, res, next) => {
-  try {
-    const { id } = req.params;
+const updateStatusContact = async (req, res) => {
+  const { id } = req.params;
 
-    const contact = await updateContact(id, req.body);
+  const contact = await Contact.findByIdAndUpdate(id, req.body, { new: true });
 
-    res.status(200).json({
-      status: "success",
-      code: 200,
-      data: {
-        contact,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    data: {
+      contact,
+    },
+  });
 };
 
 module.exports = {
-  getContacts,
-  getOneContact,
-  deleteContact,
-  postContact,
-  putContact,
+  getContacts: controllerWrapper(getContacts),
+  getOneContact: controllerWrapper(getOneContact),
+  deleteContact: controllerWrapper(deleteContact),
+  postContact: controllerWrapper(postContact),
+  putContact: controllerWrapper(putContact),
+  updateStatusContact: controllerWrapper(updateStatusContact),
 };
