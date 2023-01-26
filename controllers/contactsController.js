@@ -1,4 +1,5 @@
-const { controllerWrapper } = require("../helpers");
+const { controllerWrapper } = require("../helpers/index");
+const { HttpError } = require("../helpers/index");
 const {
   listContacts,
   getContactById,
@@ -21,11 +22,12 @@ const getOneContact = async (req, res, next) => {
   const contact = await getContactById(id);
 
   if (!contact) {
-    return res.status(404).json({
-      status: "error",
-      code: 404,
-      message: "Not found",
-    });
+    throw HttpError(404);
+    // return res.status(404).json({
+    //   status: "error",
+    //   code: 404,
+    //   message: "Not found",
+    // });
   }
   res.status(200).json({
     status: "success",
@@ -39,11 +41,12 @@ const deleteContact = async (req, res, next) => {
   const contact = await removeContact(id);
   console.log(contact);
   if (!contact) {
-    return res.status(404).json({
-      status: "error",
-      code: 404,
-      message: "Not found",
-    });
+    throw HttpError(404);
+    // return res.status(404).json({
+    //   status: "error",
+    //   code: 404,
+    //   message: "Not found",
+    // });
   }
   res.status(200).json({
     status: "success",
