@@ -3,12 +3,9 @@ const app = require("./app");
 
 const { PORT = 3000, DB_HOST } = process.env;
 
-const connection = mongoose.connect(DB_HOST, {
-  promiseLibrary: global.Promise,
-  useCreateIndex: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-});
+mongoose.set("strictQuery", true);
+
+const connection = mongoose.connect(DB_HOST);
 
 connection
   .then(() => {
