@@ -9,7 +9,7 @@ const { Contact } = require("../models/contacts");
 //   updateContact,
 // } = require("../models/contacts");
 
-const getContacts = async (req, res, next) => {
+const getContacts = async (req, res) => {
   const contacts = await Contact.find();
 
   res.status(200).json({
@@ -19,40 +19,38 @@ const getContacts = async (req, res, next) => {
   });
 };
 
-const getOneContact = async (req, res, next) => {
+const getOneContact = async (req, res) => {
   const { id } = req.params;
-  // const contact = await getContactById(id);
+  const contact = await Contact.findById(id);
 
-  // if (!contact) {
-  //   throw HttpError(404);
-
-  // }
-  // res.status(200).json({
-  //   status: "success",
-  //   code: 200,
-  //   contact,
-  // });
+  if (!contact) {
+    throw HttpError(404);
+  }
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    contact,
+  });
 };
 
-const deleteContact = async (req, res, next) => {
+const deleteContact = async (req, res) => {
   const { id } = req.params;
-  // const contact = await removeContact(id);
-  // console.log(contact);
-  // if (!contact) {
-  //   throw HttpError(404);
+  const contact = await Contact.findByIdAndRemove(id);
 
-  // }
-  // res.status(200).json({
-  //   status: "success",
-  //   code: 200,
-  //   message: "contact deleted",
-  //   data: {
-  //     contact,
-  //   },
-  // });
+  if (!contact) {
+    throw HttpError(404);
+  }
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    message: "contact deleted",
+    data: {
+      contact,
+    },
+  });
 };
 
-const postContact = async (req, res, next) => {
+const postContact = async (req, res) => {
   const contact = await Contact.create(req.body);
   res.status(201).json({
     status: "success",
@@ -63,18 +61,32 @@ const postContact = async (req, res, next) => {
   });
 };
 
-const putContact = async (req, res, next) => {
+const putContact = async (req, res) => {
   const { id } = req.params;
 
-  // const contact = await updateContact(id, req.body);
+  const contact = await Contact.findByIdAndUpdate(id, req.body, { new: true });
 
-  // res.status(200).json({
-  //   status: "success",
-  //   code: 200,
-  //   data: {
-  //     contact,
-  //   },
-  // });
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    data: {
+      contact,
+    },
+  });
+};
+
+const updateStatusContact = async (req, res) => {
+  const { id } = req.params;
+
+  const contact = await Contact.findByIdAndUpdate(id, req.body, { new: true });
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    data: {
+      contact,
+    },
+  });
 };
 
 module.exports = {
@@ -83,4 +95,5 @@ module.exports = {
   deleteContact: controllerWrapper(deleteContact),
   postContact: controllerWrapper(postContact),
   putContact: controllerWrapper(putContact),
+  updateStatusContact: controllerWrapper(updateStatusContact),
 };
