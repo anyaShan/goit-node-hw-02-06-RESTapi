@@ -19,11 +19,38 @@ const register = async (req, res) => {
     user: {
       password: newUser.password,
       email: newUser.email,
-      subscription: newUser.subscription,
+    },
+  });
+};
+
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw HttpError(401, "Email or password is wrong");
+  }
+
+  const comparePassword = await dcrypt.compare(password, user.password);
+
+  if (!comparePassword) {
+    throw HttpError(401, "Email or password is wrong");
+  }
+
+  const token = "82y2uhr3kj2kjh25hk2532";
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    user: {
+      token,
+      email: user.email,
+      subscription: user.subscription,
     },
   });
 };
 
 module.exports = {
   register: controllerWrapper(register),
+  login: controllerWrapper(login),
 };
