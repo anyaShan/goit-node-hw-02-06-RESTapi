@@ -2,7 +2,8 @@ const { controllerWrapper, HttpError } = require("../helpers/index");
 const { Contact } = require("../models/contacts");
 
 const getContacts = async (req, res) => {
-  const contacts = await Contact.find();
+  const { _id: owner } = req.user;
+  const contacts = await Contact.find({ owner }, "-createdAt -updatedAt");
 
   res.status(200).json({
     status: "success",
@@ -43,7 +44,8 @@ const deleteContact = async (req, res) => {
 };
 
 const postContact = async (req, res) => {
-  const contact = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const contact = await Contact.create({ ...req.body, owner });
   res.status(201).json({
     status: "success",
     code: 201,
