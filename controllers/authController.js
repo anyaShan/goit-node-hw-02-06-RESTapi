@@ -1,5 +1,8 @@
 const dcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const fs = require("fs/promises");
+const path = require("path");
 
 const { controllerWrapper, HttpError } = require("../helpers/index");
 const { User } = require("../models/users");
@@ -15,7 +18,13 @@ const register = async (req, res) => {
 
   const hashPassword = await dcrypt.hash(password, 10);
 
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL = gravatar.url(email);
+
+  const newUser = await User.create({
+    ...req.body,
+    password: hashPassword,
+    avatarURL,
+  });
 
   res.status(201).json({
     status: "success",
@@ -92,10 +101,29 @@ const subscription = async (req, res) => {
   res.json({ user });
 };
 
+const avatarDir = path.join(__dirname, "../", "public", "avatars");
+
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: tempUpload, filename } = req.file;
+  const resultUpload = path.join(avatarDir, filename);
+  await fs.rename(tempUpload, resultUpload);
+
+  const avatarURL = path.join("avatars", filename);
+  await User.findByIdAndUpdate(_id, avatarURL);
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    avatarURL,
+  });
+};
+
 module.exports = {
   register: controllerWrapper(register),
   login: controllerWrapper(login),
   getCurrent: controllerWrapper(getCurrent),
   logout: controllerWrapper(logout),
   subscription: controllerWrapper(subscription),
+  updateAvatar: controllerWrapper(updateAvatar),
 };
