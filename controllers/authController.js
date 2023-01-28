@@ -106,11 +106,16 @@ const avatarDir = path.join(__dirname, "../", "public", "avatars");
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tempUpload, filename } = req.file;
+
+  console.log(tempUpload);
+  console.log(filename);
+
   const resultUpload = path.join(avatarDir, filename);
   await fs.rename(tempUpload, resultUpload);
 
   const avatarURL = path.join("avatars", filename);
-  await User.findByIdAndUpdate(_id, avatarURL);
+
+  await User.findByIdAndUpdate(_id, { avatarURL });
 
   res.status(200).json({
     status: "success",
