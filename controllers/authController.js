@@ -89,7 +89,7 @@ const verifySecond = async (req, res) => {
 
   const verifyEmail = {
     to: email,
-    subject: "Verify email",
+    subject: "Repeat verify email",
     text: "and easy to do anywhere, even with Node.js",
     html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${user.verificationToken}">Click verify email</a>`,
   };
