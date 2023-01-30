@@ -8,7 +8,8 @@ const { nanoid } = require("nanoid");
 
 const { controllerWrapper, HttpError } = require("../helpers/index");
 const { User } = require("../models/users");
-const sendEmail = require("../helpers/sendEmail");
+// const sendEmail = require("../helpers/sendEmail");
+const sendEmailNodemailer = require("../helpers/sendEmailNodemaier");
 
 const { SECRET_KEY, BASE_URL } = process.env;
 
@@ -39,7 +40,8 @@ const register = async (req, res) => {
     html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${verificationToken}">Click verify email</a>`,
   };
 
-  await sendEmail(verifyEmail);
+  // await sendEmail(verifyEmail);
+  await sendEmailNodemailer(verifyEmail);
 
   res.status(201).json({
     status: "success",
@@ -92,7 +94,8 @@ const verifySecond = async (req, res) => {
     html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${user.verificationToken}">Click verify email</a>`,
   };
 
-  await sendEmail(verifyEmail);
+  // await sendEmail(verifyEmail);
+  await sendEmailNodemailer(verifyEmail);
 
   res.status(200).json({
     status: "success",
