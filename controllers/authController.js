@@ -70,11 +70,42 @@ const verify = async (req, res) => {
   });
 };
 
+const verifySecond = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  if (!email) {
+    throw HttpError(400, "missing required field email");
+  }
+
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    text: "and easy to do anywhere, even with Node.js",
+    html: `<a target="_blank" href="${BASE_URL}/api/users/verify/${user.verificationToken}">Click verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    message: "Verification successful",
+  });
+};
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
-  if (!user) {
+  if (!user || !user.verify) {
     throw HttpError(401, "Email or password is wrong");
   }
 
@@ -171,4 +202,5 @@ module.exports = {
   subscription: controllerWrapper(subscription),
   updateAvatar: controllerWrapper(updateAvatar),
   verify: controllerWrapper(verify),
+  verifySecond: controllerWrapper(verifySecond),
 };
