@@ -37,6 +37,25 @@ const register = async (req, res) => {
   });
 };
 
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: null,
+  });
+
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    message: "Verification successful",
+  });
+};
+
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -137,4 +156,5 @@ module.exports = {
   logout: controllerWrapper(logout),
   subscription: controllerWrapper(subscription),
   updateAvatar: controllerWrapper(updateAvatar),
+  verify: controllerWrapper(verify),
 };
