@@ -8,8 +8,8 @@ const { nanoid } = require("nanoid");
 
 const { controllerWrapper, HttpError } = require("../helpers/index");
 const { User } = require("../models/users");
-// const sendEmail = require("../helpers/sendEmail");
-const sendEmailNodemailer = require("../helpers/sendEmailNodemaier");
+// const sendEmail = require("../services/email/sendEmail");
+const sendEmailNodemailer = require("../services/email/sendEmailNodemaier");
 
 const { SECRET_KEY, BASE_URL } = process.env;
 
